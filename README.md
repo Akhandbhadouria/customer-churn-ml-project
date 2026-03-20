@@ -95,4 +95,3 @@ This project is configured for one-click deployment to **Render** or **Heroku**:
 *   **Akhand Bhadouria**
 
 ---
-*Note: This project was developed as part of a comprehensive Machine Learning and Data Science portfolio.*
