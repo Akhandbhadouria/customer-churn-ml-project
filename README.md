@@ -1,66 +1,98 @@
-# Bank Churn Analysis Project
+# 🏦 ChurnVision: Bank Customer Churn Analytics Dashboard
 
-This repository contains several Jupyter Notebooks for analyzing and modeling customer churn in banking data. The main dataset used is `Bank_Churn.csv`.
+**ChurnVision** is a premium, end-to-end Machine Learning web application designed to predict and analyze customer attrition for banking institutions. It combines multiple classification models, regression models, and clustering algorithms into a single, interactive dashboard to provide actionable insights into customer behavior.
 
-## Notebooks Overview
+---
 
-### 1. EDAA.ipynb
-- **Purpose:** Exploratory Data Analysis (EDA) of the bank churn dataset.
-- **Key Steps:**
-  - Data loading and inspection
-  - Missing value and duplicate check
-  - Target variable analysis (churn rate)
-  - Visualizations: count plots, correlation heatmap, boxplots for outlier detection
-  - Distribution analysis of key features
+### 🌐 [Live Demo Link](https://customer-churn-ml-project.onrender.com/)
 
-### 2. GRADIENT_BOOST_REGRESSOR.ipynb
-- **Purpose:** Predicting customer balance using Gradient Boosting Regression.
-- **Key Steps:**
-  - Data cleaning and encoding
-  - Feature engineering and selection
-  - Feature scaling and train-test split
-  - Model training and evaluation (R2, MSE, RMSE)
-  - User prediction function for balance estimation
+---
 
-### 3. K_MEAN.ipynb
-- **Purpose:** Clustering customers using K-Means.
-- **Key Steps:**
-  - Feature selection and scaling
-  - Elbow method for optimal cluster count
-  - Cluster assignment and visualization (PCA)
-  - Cluster profiling
-  - User prediction function for cluster assignment
+## 🚀 Key Features
 
-### 4. KNN.ipynb
-- **Purpose:** Classification of customer churn using K-Nearest Neighbors (KNN).
-- **Key Steps:**
-  - Data cleaning and encoding
-  - Feature selection, scaling, and splitting
-  - Model training and evaluation (accuracy, confusion matrix, classification report)
-  - User prediction function for churn classification
-  - Summary statistics for churned and non-churned customers
+### 1. **Multi-Model Churn Prediction**
+Predicts whether a customer is likely to leave the bank using an ensemble of high-performance models:
+*   **XGBoost Classifier**: State-of-the-art gradient boosting with **~87% accuracy**.
+*   **KNN (K-Nearest Neighbors)**: Similarity-based classification.
+*   **Decision Tree**: Interpretable logic-based classification.
 
-### 5. decision_treee.ipynb
-- **Purpose:** Classification of customer churn using Decision Tree.
-- **Key Steps:**
-  - Data cleaning and encoding
-  - Feature selection, scaling, and splitting
-  - Model training and evaluation (accuracy, confusion matrix, classification report)
-  - User prediction function for churn classification
+### 2. **Financial Estimation**
+*   **Gradient Boosting Regressor**: Dynamically estimates a customer's expected account balance based on their financial profile (Credit Score, Tenure, Products, etc.).
 
-## Dataset
-- **Bank_Churn.csv:** Main dataset containing customer information and churn status.
+### 3. **Behavioral Segmentation**
+*   **K-Means Clustering**: Automatically segments customers into distinct behavioral profiles using optimized PCA and the "Elbow Method."
 
-## Usage
-Open any notebook in VS Code or Jupyter and run the cells sequentially. Each notebook is self-contained and demonstrates a specific analysis or modeling technique.
+### 4. **Bulk Analysis Tool**
+*   Upload a CSV file to perform mass predictions and generate a summary report for thousands of customers in seconds.
 
-## Requirements
-- Python 3.x
-- pandas, numpy, matplotlib, seaborn, scikit-learn
+### 5. **Premium Interactive UI**
+*   Modern, responsive dashboard with glassmorphism design.
+*   Real-time probability visualizations and performance benchmarking charts.
 
-Install dependencies using:
+---
+
+## 🛠️ Tech Stack
+
+*   **Backend**: Python, Flask, Gunicorn
+*   **Machine Learning**: XGBoost, Scikit-Learn, Pandas, NumPy
+*   **Frontend**: HTML5, CSS3 (Vanilla), JavaScript, Chart.js
+*   **Deployment**: Ready for Render, Heroku, or AWS (includes `Procfile` and `requirements.txt`)
+
+---
+
+## 📦 Project Structure
+
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn
+├── app.py              # Main Flask Application
+├── Bank_Churn.csv      # Primary Dataset
+├── pickel_files/       # Serialized ML Models & Scalers
+├── static/             # CSS & Client-side Assets
+├── templates/          # HTML Templates
+├── train_xgb.py        # XGBoost Training Script
+├── fix_gbr.py          # Model version compatibility fix script
+├── requirements.txt    # Project Dependencies
+└── Procfile            # Deployment Configuration
 ```
 
+---
 
+## ⚙️ Installation & Setup
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/Akhandbhadouria/customer-churn-ml-project.git
+    cd customer-churn-ml-project
+    ```
+
+2.  **Create a Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Run Locally**:
+    ```bash
+    python app.py
+    ```
+    Access the dashboard at `http://127.0.0.1:5001`.
+
+---
+
+## 📊 Deployment
+
+This project is configured for one-click deployment to **Render** or **Heroku**:
+*   **Build Command**: `pip install -r requirements.txt`
+*   **Start Command**: `gunicorn app:app`
+
+---
+
+## 📝 Authors
+*   **Akhand Bhadouria**
+
+---
+*Note: This project was developed as part of a comprehensive Machine Learning and Data Science portfolio.*
