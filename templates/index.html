@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurnVision — Bank Customer Churn Analysis</title>
+    <meta name="description" content="AI-powered bank customer churn prediction and analysis dashboard. Predict customer behavior using KNN, Decision Tree, and Gradient Boosting models.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="12" stroke="url(#grad1)" stroke-width="2.5"/>
+                    <path d="M9 14L12.5 17.5L19 11" stroke="url(#grad1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="0" y1="0" x2="28" y2="28">
+                            <stop stop-color="#f97316"/>
+                            <stop offset="1" stop-color="#dc2626"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="brand-text">ChurnVision</span>
+        </div>
+        <div class="nav-links">
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a>
+            <a href="#predict" class="nav-link" data-section="predict">Predict</a>
+            <a href="#bulk" class="nav-link" data-section="bulk">Bulk Analysis</a>
+            <a href="#models" class="nav-link" data-section="models">Models</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- ═══════ DASHBOARD SECTION ═══════ -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <h1>Analytics Dashboard</h1>
+                <p class="subtitle">Real-time insights from 10,000 bank customer records</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card" id="kpi-total">
+                    <div class="kpi-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" data-target="10000">0</span>
+                        <span class="kpi-label">Total Customers</span>
+                    </div>
+                </div>
+                <div class="kpi-card" id="kpi-churned">
+                    <div class="kpi-icon red">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" data-target="0">0</span>
+                        <span class="kpi-label">Churned</span>
+                    </div>
+                </div>
+                <div class="kpi-card" id="kpi-retained">
+                    <div class="kpi-icon green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" data-target="0">0</span>
+                        <span class="kpi-label">Retained</span>
+                    </div>
+                </div>
+                <div class="kpi-card" id="kpi-rate">
+                    <div class="kpi-icon purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-value kpi-percent" data-target="0">0</span>
+                        <span class="kpi-label">Churn Rate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Churn Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="churnPieChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Churn Rate by Geography</h3>
+                    <div class="chart-container">
+                        <canvas id="geoBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Churn Rate by Age Group</h3>
+                    <div class="chart-container">
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Churn by Number of Products</h3>
+                    <div class="chart-container">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Churn by Gender</h3>
+                    <div class="chart-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Active vs Inactive Member Churn</h3>
+                    <div class="chart-container">
+                        <canvas id="activeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ PREDICTION SECTION ═══════ -->
+        <section id="predict" class="section">
+            <div class="section-header">
+                <h1>Customer Prediction</h1>
+                <p class="subtitle">Enter customer details to predict churn risk, estimate balance, and classify segment</p>
+            </div>
+
+            <div class="predict-layout">
+                <div class="predict-form-card">
+                    <h3 class="form-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Customer Profile
+                    </h3>
+
+                    <form id="predictionForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="credit_score">Credit Score</label>
+                                <input type="number" id="credit_score" name="credit_score" value="650" min="300" max="900" required>
+                                <span class="input-hint">300 - 900</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="geography">Geography</label>
+                                <select id="geography" name="geography" required>
+                                    <option value="France">France</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="Spain">Spain</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="Female">Female</option>
+                                    <option value="Male">Male</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" value="35" min="18" max="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tenure">Tenure (years)</label>
+                                <input type="number" id="tenure" name="tenure" value="5" min="0" max="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="balance">Balance ($)</label>
+                                <input type="number" id="balance" name="balance" value="100000" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="num_products">Products</label>
+                                <select id="num_products" name="num_products" required>
+                                    <option value="1">1</option>
+                                    <option value="2" selected>2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="has_card">Has Credit Card</label>
+                                <select id="has_card" name="has_card" required>
+                                    <option value="1" selected>Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="is_active">Active Member</label>
+                                <select id="is_active" name="is_active" required>
+                                    <option value="1" selected>Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="salary">Est. Salary ($)</label>
+                                <input type="number" id="salary" name="salary" value="100000" min="0" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-predict" id="predictBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Run Prediction
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results -->
+                <div class="predict-results" id="predictResults">
+                    <div class="result-placeholder" id="resultPlaceholder">
+                        <div class="placeholder-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <p>Enter customer details and click <strong>Run Prediction</strong></p>
+                    </div>
+
+                    <!-- Churn KNN Result -->
+                    <div class="result-card hidden" id="knnResult">
+                        <div class="result-header">
+                            <h4>KNN Model</h4>
+                            <span class="model-badge knn">K-Nearest Neighbors</span>
+                        </div>
+                        <div class="result-prediction" id="knnPrediction"></div>
+                        <div class="result-proba">
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Stay</span>
+                                    <span id="knnStayProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill stay" id="knnStayBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Churn</span>
+                                    <span id="knnChurnProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill churn" id="knnChurnBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Churn DT Result -->
+                    <div class="result-card hidden" id="dtResult">
+                        <div class="result-header">
+                            <h4>Decision Tree Model</h4>
+                            <span class="model-badge dt">Decision Tree</span>
+                        </div>
+                        <div class="result-prediction" id="dtPrediction"></div>
+                        <div class="result-proba">
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Stay</span>
+                                    <span id="dtStayProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill stay" id="dtStayBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Churn</span>
+                                    <span id="dtChurnProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill churn" id="dtChurnBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Churn XGBoost Result -->
+                    <div class="result-card hidden" id="xgbResult">
+                        <div class="result-header">
+                            <h4>XGBoost Model</h4>
+                            <span class="model-badge xgb">eXtreme Gradient Boosting</span>
+                        </div>
+                        <div class="result-prediction" id="xgbPrediction"></div>
+                        <div class="result-proba">
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Stay</span>
+                                    <span id="xgbStayProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill stay" id="xgbStayBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="proba-bar-container">
+                                <div class="proba-label">
+                                    <span>Churn</span>
+                                    <span id="xgbChurnProb">0%</span>
+                                </div>
+                                <div class="proba-bar">
+                                    <div class="proba-fill churn" id="xgbChurnBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Balance Result -->
+                    <div class="result-card hidden" id="balanceResult">
+                        <div class="result-header">
+                            <h4>Balance Prediction</h4>
+                            <span class="model-badge gbr">Gradient Boosting</span>
+                        </div>
+                        <div class="balance-value" id="balanceValue">$0</div>
+                        <p class="result-note">Estimated account balance based on customer profile</p>
+                    </div>
+
+                    <!-- Cluster Result -->
+                    <div class="result-card hidden" id="clusterResult">
+                        <div class="result-header">
+                            <h4>Customer Segment</h4>
+                            <span class="model-badge kmeans">K-Means</span>
+                        </div>
+                        <div class="cluster-badge" id="clusterBadge">—</div>
+                        <p class="cluster-desc" id="clusterDesc"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ BULK ANALYSIS SECTION ═══════ -->
+        <section id="bulk" class="section">
+            <div class="section-header">
+                <h1>Bulk Analysis</h1>
+                <p class="subtitle">Upload a CSV file to perform predictions on multiple customers at once</p>
+            </div>
+
+            <div class="bulk-container">
+                <div class="upload-zone" id="dropZone">
+                    <input type="file" id="fileInput" accept=".csv" class="hidden">
+                    <div class="upload-content">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                            </svg>
+                        </div>
+                        <h3>Upload CSV File</h3>
+                        <p>Drag and drop your file here or <span class="browse-text">browse</span></p>
+                        <p class="upload-hint">Format: CreditScore, Geography, Gender, Age, Tenure, Balance, Products, HasCrCard, IsActiveMember, EstimatedSalary</p>
+                    </div>
+                </div>
+
+                <div id="uploadProgress" class="hidden">
+                    <div class="progress-zone">
+                        <div class="progress-label">Processing Analysis...</div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bulkResults" class="hidden">
+                    <div class="analysis-report animate-in">
+                        <div class="report-header">
+                            <div class="report-meta">
+                                <h2 id="reportFilename">filename.csv</h2>
+                                <span class="badge" id="reportCount">0 records</span>
+                            </div>
+                            <button class="btn-secondary" onclick="resetUpload()">Upload Another</button>
+                        </div>
+
+                        <div class="report-grid">
+                            <div class="model-summary">
+                                <h3>Predicted Churn Risk by Model</h3>
+                                <div class="bulk-metrics">
+                                    <div class="bulk-metric-card">
+                                        <span class="label">KNN</span>
+                                        <div class="bulk-value-group">
+                                            <span class="value" id="bulkKnnRate">0%</span>
+                                            <span class="sub-label" id="bulkKnnCount">0 churned</span>
+                                        </div>
+                                        <div class="mini-bar"><div class="mini-fill rose" id="bulkKnnBar"></div></div>
+                                    </div>
+                                    <div class="bulk-metric-card">
+                                        <span class="label">Decision Tree</span>
+                                        <div class="bulk-value-group">
+                                            <span class="value" id="bulkDtRate">0%</span>
+                                            <span class="sub-label" id="bulkDtCount">0 churned</span>
+                                        </div>
+                                        <div class="mini-bar"><div class="mini-fill rose" id="bulkDtBar"></div></div>
+                                    </div>
+                                    <div class="bulk-metric-card">
+                                        <span class="label">XGBoost</span>
+                                        <div class="bulk-value-group">
+                                            <span class="value" id="bulkXgbRate">0%</span>
+                                            <span class="sub-label" id="bulkXgbCount">0 churned</span>
+                                        </div>
+                                        <div class="mini-bar"><div class="mini-fill cyan" id="bulkXgbBar"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="file-stats">
+                                <h3>Sample Profile (Average)</h3>
+                                <ul class="stats-list">
+                                    <li><span>Age:</span> <strong id="statAge">0</strong></li>
+                                    <li><span>Balance:</span> <strong id="statBalance">$0</strong></li>
+                                    <li><span>Top Geography:</span> <strong id="statGeo">—</strong></li>
+                                    <li><span>Gender Split:</span> <strong id="statGender">—</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ MODELS SECTION ═══════ -->
+        <section id="models" class="section">
+            <div class="section-header">
+                <h1>Model Performance</h1>
+                <p class="subtitle">Comparison of trained models on the bank churn dataset</p>
+            </div>
+
+            <div class="models-grid">
+                <div class="model-card">
+                    <div class="model-icon knn-bg">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                    </div>
+                    <h3>K-Nearest Neighbors</h3>
+                    <p class="model-desc">Classification model using proximity-based voting. Uses 9 nearest neighbors with feature scaling.</p>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">84.9%</span>
+                            <span class="metric-label">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">71.4%</span>
+                            <span class="metric-label">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">36.8%</span>
+                            <span class="metric-label">Recall</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">48.6%</span>
+                            <span class="metric-label">F1 Score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon dt-bg">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><line x1="12" y1="6" x2="6" y2="10"/><line x1="12" y1="6" x2="18" y2="10"/><line x1="6" y1="14" x2="4" y2="18"/><line x1="6" y1="14" x2="8" y2="18"/><line x1="18" y1="14" x2="16" y2="18"/><line x1="18" y1="14" x2="20" y2="18"/></svg>
+                    </div>
+                    <h3>Decision Tree</h3>
+                    <p class="model-desc">Rule-based classifier that splits data on feature thresholds. Interpretable and fast predictions.</p>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">85.2%</span>
+                            <span class="metric-label">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">76.2%</span>
+                            <span class="metric-label">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">35.8%</span>
+                            <span class="metric-label">Recall</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">48.7%</span>
+                            <span class="metric-label">F1 Score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon gbr-bg">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <h3>Gradient Boosting</h3>
+                    <p class="model-desc">Ensemble regression model that predicts customer balance through sequential boosting iterations.</p>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">R²</span>
+                            <span class="metric-label">Regression</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">Balance</span>
+                            <span class="metric-label">Target</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">MSE</span>
+                            <span class="metric-label">Loss</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">RMSE</span>
+                            <span class="metric-label">Error</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon kmeans-bg">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><line x1="9" y1="6" x2="15" y2="6" stroke-dasharray="2 2"/><line x1="6" y1="9" x2="6" y2="15" stroke-dasharray="2 2"/><line x1="18" y1="9" x2="18" y2="15" stroke-dasharray="2 2"/><line x1="9" y1="18" x2="15" y2="18" stroke-dasharray="2 2"/></svg>
+                    </div>
+                    <h3>K-Means Clustering</h3>
+                    <p class="model-desc">Unsupervised model that groups customers into behavioral segments using elbow-method optimization.</p>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">PCA</span>
+                            <span class="metric-label">Visualization</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">Elbow</span>
+                            <span class="metric-label">Method</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">Profiles</span>
+                            <span class="metric-label">Output</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">Scaled</span>
+                            <span class="metric-label">Features</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon xgb-bg">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3>XGBoost</h3>
+                    <p class="model-desc">Advanced ensemble algorithm providing high performance through gradient-boosted decision trees.</p>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-value">86.9%</span>
+                            <span class="metric-label">Accuracy</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">81.2%</span>
+                            <span class="metric-label">Precision</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">44.5%</span>
+                            <span class="metric-label">Recall</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">57.6%</span>
+                            <span class="metric-label">F1 Score</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Comparison Chart -->
+            <div class="chart-card comparison-chart">
+                <h3 class="chart-title">Classification Model Comparison</h3>
+                <div class="chart-container" style="max-width: 700px; margin: 0 auto;">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Built with ML models trained on <strong>Bank Churn Dataset</strong> • KNN • Decision Tree • Gradient Boosting • K-Means</p>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════════
+        // Data from Flask
+        // ═══════════════════════════════════════════════════════
+        const STATS = {{ stats | safe }};
+
+        // ═══════════════════════════════════════════════════════
+        // Navigation
+        // ═══════════════════════════════════════════════════════
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════
+        // Animated counters
+        // ═══════════════════════════════════════════════════════
+        function animateCounter(element, target, suffix = '') {
+            const duration = 1500;
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + (target - start) * eased);
+                element.textContent = current.toLocaleString() + suffix;
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Initialize KPIs
+        const kpiTotal = document.querySelector('#kpi-total .kpi-value');
+        const kpiChurned = document.querySelector('#kpi-churned .kpi-value');
+        const kpiRetained = document.querySelector('#kpi-retained .kpi-value');
+        const kpiRate = document.querySelector('#kpi-rate .kpi-value');
+
+        setTimeout(() => {
+            animateCounter(kpiTotal, STATS.total_customers);
+            animateCounter(kpiChurned, STATS.churned);
+            animateCounter(kpiRetained, STATS.not_churned);
+            animateCounter(kpiRate, STATS.churn_rate, '%');
+        }, 300);
+
+        // ═══════════════════════════════════════════════════════
+        // Chart.js defaults
+        // ═══════════════════════════════════════════════════════
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.plugins.legend.labels.padding = 16;
+
+        const COLORS = {
+            indigo: '#6366f1',
+            purple: '#a855f7',
+            pink: '#ec4899',
+            rose: '#f43f5e',
+            emerald: '#10b981',
+            teal: '#14b8a6',
+            cyan: '#06b6d4',
+            blue: '#3b82f6',
+            amber: '#f59e0b',
+            orange: '#f97316',
+            indigoAlpha: 'rgba(99,102,241,0.3)',
+            purpleAlpha: 'rgba(168,85,247,0.3)',
+            pinkAlpha: 'rgba(236,72,153,0.3)',
+            roseAlpha: 'rgba(244,63,94,0.3)',
+            emeraldAlpha: 'rgba(16,185,129,0.3)',
+        };
+
+        // ═══════ Churn Pie Chart ═══════
+        new Chart(document.getElementById('churnPieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Retained', 'Churned'],
+                datasets: [{
+                    data: [STATS.not_churned, STATS.churned],
+                    backgroundColor: [COLORS.emerald, COLORS.rose],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // ═══════ Geography Bar Chart ═══════
+        const geoLabels = Object.keys(STATS.churn_by_geo);
+        const geoData = Object.values(STATS.churn_by_geo).map(v => (v * 100).toFixed(1));
+        new Chart(document.getElementById('geoBarChart'), {
+            type: 'bar',
+            data: {
+                labels: geoLabels,
+                datasets: [{
+                    label: 'Churn Rate (%)',
+                    data: geoData,
+                    backgroundColor: [COLORS.orange, COLORS.amber, COLORS.rose],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.06)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ═══════ Age Group Chart ═══════
+        const ageLabels = Object.keys(STATS.churn_by_age_group);
+        const ageData = Object.values(STATS.churn_by_age_group).map(v => (v * 100).toFixed(1));
+        new Chart(document.getElementById('ageChart'), {
+            type: 'bar',
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: 'Churn Rate (%)',
+                    data: ageData,
+                    backgroundColor: ageData.map((_, i) => {
+                        const colors = [COLORS.cyan, COLORS.blue, COLORS.indigo, COLORS.purple, COLORS.pink, COLORS.rose];
+                        return colors[i % colors.length];
+                    }),
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148,163,184,0.08)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ═══════ Products Chart ═══════
+        const prodLabels = Object.keys(STATS.churn_by_products).map(k => k + ' Product' + (k !== '1' ? 's' : ''));
+        const prodData = Object.values(STATS.churn_by_products).map(v => (v * 100).toFixed(1));
+        new Chart(document.getElementById('productsChart'), {
+            type: 'bar',
+            data: {
+                labels: prodLabels,
+                datasets: [{
+                    label: 'Churn Rate (%)',
+                    data: prodData,
+                    backgroundColor: [COLORS.emerald, COLORS.teal, COLORS.amber, COLORS.rose],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148,163,184,0.08)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ═══════ Gender Chart ═══════
+        const genLabels = Object.keys(STATS.churn_by_gender);
+        const genData = Object.values(STATS.churn_by_gender).map(v => (v * 100).toFixed(1));
+        new Chart(document.getElementById('genderChart'), {
+            type: 'doughnut',
+            data: {
+                labels: genLabels.map(l => l + ' Churn Rate'),
+                datasets: [{
+                    data: genData,
+                    backgroundColor: [COLORS.pink, COLORS.blue],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.label + ': ' + ctx.parsed + '%'
+                        }
+                    }
+                }
+            }
+        });
+
+        // ═══════ Active Member Chart ═══════
+        new Chart(document.getElementById('activeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Inactive', 'Active'],
+                datasets: [{
+                    label: 'Churn Rate (%)',
+                    data: [
+                        (STATS.churn_by_active['0'] * 100).toFixed(1),
+                        (STATS.churn_by_active['1'] * 100).toFixed(1)
+                    ],
+                    backgroundColor: [COLORS.rose, COLORS.emerald],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(148,163,184,0.08)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ═══════ Model Comparison Chart ═══════
+        new Chart(document.getElementById('comparisonChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+                datasets: [
+                    {
+                        label: 'KNN',
+                        data: [84.9, 71.4, 36.8, 48.6],
+                        backgroundColor: COLORS.orange,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Decision Tree',
+                        data: [85.2, 76.2, 35.8, 48.7],
+                        backgroundColor: COLORS.emerald,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'XGBoost',
+                        data: [86.9, 81.2, 44.5, 57.6],
+                        backgroundColor: COLORS.cyan,
+                        borderRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(148,163,184,0.08)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════
+        // Prediction Form
+        // ═══════════════════════════════════════════════════════
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('predictBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Predicting…';
+
+            const formData = {
+                credit_score: document.getElementById('credit_score').value,
+                geography: document.getElementById('geography').value,
+                gender: document.getElementById('gender').value,
+                age: document.getElementById('age').value,
+                tenure: document.getElementById('tenure').value,
+                balance: document.getElementById('balance').value,
+                num_products: document.getElementById('num_products').value,
+                has_card: document.getElementById('has_card').value,
+                is_active: document.getElementById('is_active').value,
+                salary: document.getElementById('salary').value,
+            };
+
+            try {
+                // Run all predictions in parallel
+                const [churnRes, balanceRes, clusterRes] = await Promise.all([
+                    fetch('/api/predict/churn', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    }).then(r => r.json()),
+                    fetch('/api/predict/balance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    }).then(r => r.json()),
+                    fetch('/api/predict/cluster', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    }).then(r => r.json()),
+                ]);
+
+                // Hide placeholder
+                document.getElementById('resultPlaceholder').classList.add('hidden');
+
+                // ─── KNN Result ───
+                const knnCard = document.getElementById('knnResult');
+                knnCard.classList.remove('hidden');
+                const knnPred = document.getElementById('knnPrediction');
+                knnPred.textContent = churnRes.knn.prediction;
+                knnPred.className = 'result-prediction ' + (churnRes.knn.prediction === 'Churn' ? 'churn' : 'stay');
+                document.getElementById('knnStayProb').textContent = churnRes.knn.stay_probability + '%';
+                document.getElementById('knnChurnProb').textContent = churnRes.knn.churn_probability + '%';
+                document.getElementById('knnStayBar').style.width = churnRes.knn.stay_probability + '%';
+                document.getElementById('knnChurnBar').style.width = churnRes.knn.churn_probability + '%';
+
+                // ─── DT Result ───
+                const dtCard = document.getElementById('dtResult');
+                dtCard.classList.remove('hidden');
+                const dtPred = document.getElementById('dtPrediction');
+                dtPred.textContent = churnRes.decision_tree.prediction;
+                dtPred.className = 'result-prediction ' + (churnRes.decision_tree.prediction === 'Churn' ? 'churn' : 'stay');
+                document.getElementById('dtStayProb').textContent = churnRes.decision_tree.stay_probability + '%';
+                document.getElementById('dtChurnProb').textContent = churnRes.decision_tree.churn_probability + '%';
+                document.getElementById('dtStayBar').style.width = churnRes.decision_tree.stay_probability + '%';
+                document.getElementById('dtChurnBar').style.width = churnRes.decision_tree.churn_probability + '%';
+
+                // ─── XGBoost Result ───
+                const xgbCard = document.getElementById('xgbResult');
+                xgbCard.classList.remove('hidden');
+                const xgbPred = document.getElementById('xgbPrediction');
+                xgbPred.textContent = churnRes.xgboost.prediction;
+                xgbPred.className = 'result-prediction ' + (churnRes.xgboost.prediction === 'Churn' ? 'churn' : 'stay');
+                document.getElementById('xgbStayProb').textContent = churnRes.xgboost.stay_probability + '%';
+                document.getElementById('xgbChurnProb').textContent = churnRes.xgboost.churn_probability + '%';
+                document.getElementById('xgbStayBar').style.width = churnRes.xgboost.stay_probability + '%';
+                document.getElementById('xgbChurnBar').style.width = churnRes.xgboost.churn_probability + '%';
+
+                // ─── Balance Result ───
+                const balCard = document.getElementById('balanceResult');
+                balCard.classList.remove('hidden');
+                document.getElementById('balanceValue').textContent = '$' + balanceRes.predicted_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                // ─── Cluster Result ───
+                const clCard = document.getElementById('clusterResult');
+                clCard.classList.remove('hidden');
+                document.getElementById('clusterBadge').textContent = clusterRes.label;
+                document.getElementById('clusterDesc').textContent = clusterRes.description;
+
+                // Animate cards
+                [knnCard, dtCard, xgbCard, balCard, clCard].forEach((card, i) => {
+                    card.style.animationDelay = (i * 0.1) + 's';
+                    card.classList.add('animate-in');
+                });
+
+            } catch (error) {
+                console.error('Prediction failed:', error);
+                alert('Prediction failed. Please check the server.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Run Prediction';
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════
+        // Bulk Upload Handling
+        // ═══════════════════════════════════════════════════════
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileUpload(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFileUpload(file);
+        });
+
+        function resetUpload() {
+            document.getElementById('bulkResults').classList.add('hidden');
+            document.getElementById('dropZone').classList.remove('hidden');
+            fileInput.value = '';
+        }
+
+        async function handleFileUpload(file) {
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // UI feedback
+            document.getElementById('dropZone').classList.add('hidden');
+            const progressZone = document.getElementById('uploadProgress');
+            progressZone.classList.remove('hidden');
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = '30%';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                progressBar.style.width = '70%';
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressZone.classList.add('hidden');
+                    displayBulkResults(result);
+                }, 400);
+
+            } catch (error) {
+                console.error('Upload failed:', error);
+                alert('Upload failed: ' + error.message);
+                resetUpload();
+            }
+        }
+
+        function displayBulkResults(data) {
+            document.getElementById('bulkResults').classList.remove('hidden');
+            
+            // Meta
+            document.getElementById('reportFilename').textContent = data.filename;
+            document.getElementById('reportCount').textContent = data.total_rows.toLocaleString() + ' records';
+            
+            // Models
+            const p = data.predictions;
+            document.getElementById('bulkKnnRate').textContent = p.knn.rate + '%';
+            document.getElementById('bulkKnnCount').textContent = p.knn.churned.toLocaleString() + ' predicted churn';
+            document.getElementById('bulkKnnBar').style.width = p.knn.rate + '%';
+            
+            document.getElementById('bulkDtRate').textContent = p.decision_tree.rate + '%';
+            document.getElementById('bulkDtCount').textContent = p.decision_tree.churned.toLocaleString() + ' predicted churn';
+            document.getElementById('bulkDtBar').style.width = p.decision_tree.rate + '%';
+            
+            document.getElementById('bulkXgbRate').textContent = p.xgboost.rate + '%';
+            document.getElementById('bulkXgbCount').textContent = p.xgboost.churned.toLocaleString() + ' predicted churn';
+            document.getElementById('bulkXgbBar').style.width = p.xgboost.rate + '%';
+            
+            // Stats
+            document.getElementById('statAge').textContent = data.stats.age_stats.mean;
+            document.getElementById('statBalance').textContent = '$' + data.stats.balance_stats.mean.toLocaleString();
+            
+            const topGeo = Object.entries(data.stats.geo_counts).sort((a,b) => b[1] - a[1])[0][0];
+            document.getElementById('statGeo').textContent = topGeo;
+            
+            const g = data.stats.gender_counts;
+            document.getElementById('statGender').textContent = `M: ${g.Male || 0} / F: ${g.Female || 0}`;
+        }
+    </script>
+</body>
+</html>
